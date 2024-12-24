@@ -1,0 +1,21 @@
+<router-outlet />
+
+<h1>Ponto Mais Fácil</h1>
+
+<button (click)="marcarPonto()">Marcar Ponto</button>
+<table>
+  <thead>
+    <tr>
+      <th>Entrada</th>
+      <th>Saída</th>
+      <th>Minutos</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let data of tableData">
+      <td>{{ data.entrada | date: 'dd/MM/yyyy HH:mm:ss' }}</td>
+      <td>{{ data.saida | date: 'dd/MM/yyyy HH:mm:ss' }}</td>
+      <td>{{ data.minutos }}</td>
+    </tr>
+  </tbody>
+</table>
