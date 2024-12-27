@@ -3,3 +3,4 @@ export class Ponto {
   saida?: Date;
   minutos: number = 0;
 }
+
