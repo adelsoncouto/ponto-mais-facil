@@ -12,36 +12,69 @@ import { CommonModule } from '@angular/common';
 export class AppComponent implements OnInit {
   currentTime: string = '';
   currentDate: string = '';
-  tableData: Array<Ponto> = [];
+  pontos: Array<Ponto> = [];
+  totalMinutos: number = 0;
 
   ngOnInit() {
+    const pontos = localStorage.getItem('pontos');
+    if (pontos) {
+      this.pontos = JSON.parse(pontos);
+      this.pontos.forEach(ponto => 
+        ponto.minutos = this.calcularMinutos(ponto.entrada, ponto.saida));
+      this.calcularTotalMinutos();
+    }
   }
 
   marcarPonto() {
-    let registro: Ponto = this.tableData.length > 0
-      ? this.tableData[this.tableData.length - 1]
+    let registro: Ponto = this.pontos.length > 0
+      ? this.pontos[this.pontos.length - 1]
       : new Ponto();
 
     if (!registro.entrada) {
       registro.entrada = new Date();
-      this.tableData.push(registro);
+      this.pontos.push(registro);
     } else if (!registro.saida) {
       registro.saida = new Date();
       registro.minutos = this.calcularMinutos(registro.entrada, registro.saida);
     } else {
       registro = new Ponto();
       registro.entrada = new Date();
-      this.tableData.push(registro);
+      this.pontos.push(registro);
     }
-
+    localStorage.setItem('pontos', JSON.stringify(this.pontos));
+    this.calcularTotalMinutos();
   }
 
-  calcularMinutos(dataInicial: Date, dataFinal: Date): number {
-    const diffMs = dataFinal.getTime() - dataInicial.getTime();
+  calcularMinutos(dataInicial: any, dataFinal: any): number {
+    if (!dataInicial || !dataFinal) {
+      return 0;
+    }
+
+    let entrada = new Date(dataInicial);
+    let saida = new Date(dataFinal);
+    const diffMs = saida.getTime() - entrada.getTime();
     const diffMins = Math.floor(diffMs / 60000); // 60000 ms = 1 minute
     return diffMins;
   }
 
+  excluirPonto(index: number) {
+    this.pontos.splice(index, 1);
+    localStorage.setItem('pontos', JSON.stringify(this.pontos));
+    this.calcularTotalMinutos();
+  }
 
+  calcularTotalMinutos() {
+    this.totalMinutos = this.pontos.reduce((total, ponto) => total + (ponto.minutos || 0), 0);
+  }
 
+  formatarHoras(minutos: number): string {
+    const horas = Math.floor(minutos / 60);
+    const mins = minutos % 60;
+    return `${padZero(horas)}:${padZero(mins)}`;
+  }
+
+}
+
+function padZero(num: number): string {
+  return `00${num}`.slice(-2);
 }
